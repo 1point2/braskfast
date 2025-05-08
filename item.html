@@ -71,7 +71,41 @@
     </div>
 
     <div class="spicy-option">
-      <label><input type="checkbox" id="spicy"> 加辣</label>
+      <label><input type="checkbox" id="spicy"> 加辣</label><br>
+      <label><input type="radio" name="temperature" id="cold" value="cold"> 冰的</label><br>
+      <label><input type="radio" name="temperature" id="hot" value="hot"> 熱的</label>
+    </div>
+
+    <div class="spicy-option">
+  <h3>加料選項</h3>
+  <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <label style="width: 100px; text-align: right;">加蛋 +15</label>
+      <button style="width: 32px; height: 32px; font-size: 20px; border-radius: 8px; border: none; background-color: #e1c94f; color: black; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="changeAddon('egg', -1)">−</button>
+      <input type="number" id="addon-egg" value="0" min="0" readonly style="width: 50px; text-align: center;">
+      <button style="width: 32px; height: 32px; font-size: 20px; border-radius: 8px; border: none; background-color: #e1c94f; color: black; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="changeAddon('egg', 1)">＋</button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <label style="width: 100px; text-align: right;">加培根 +20</label>
+      <button style="width: 32px; height: 32px; font-size: 20px; border-radius: 8px; border: none; background-color: #e1c94f; color: black; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="changeAddon('bacon', -1)">−</button>
+      <input type="number" id="addon-bacon" value="0" min="0" readonly style="width: 50px; text-align: center;">
+      <button style="width: 32px; height: 32px; font-size: 20px; border-radius: 8px; border: none; background-color: #e1c94f; color: black; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="changeAddon('bacon', 1)">＋</button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <label style="width: 100px; text-align: right;">加火腿 +10</label>
+      <button style="width: 32px; height: 32px; font-size: 20px; border-radius: 8px; border: none; background-color: #e1c94f; color: black; font-weight: bold; text-align: center; line-height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="changeAddon('ham', -1)">−</button>
+      <input type="number" id="addon-ham" value="0" min="0" readonly style="width: 50px; text-align: center;">
+      <button style="width: 32px; height: 32px; font-size: 20px; border-radius: 8px; border: none; background-color: #e1c94f; color: black; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="changeAddon('ham', 1)">＋</button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <label style="width: 100px; text-align: right;">加起司 +5</label>
+      <button style="width: 32px; height: 32px; font-size: 20px; border-radius: 8px; border: none; background-color: #e1c94f; color: black; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="changeAddon('cheese', -1)">−</button>
+      <input type="number" id="addon-cheese" value="0" min="0" readonly style="width: 50px; text-align: center;">
+      <button style="width: 32px; height: 32px; font-size: 20px; border-radius: 8px; border: none; background-color: #e1c94f; color: black; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="changeAddon('cheese', 1)">＋</button>
+    </div>
+  </div>
+</div>
+      
     </div>
 
     <button onclick="submitItem()">加入訂單並返回</button>
@@ -87,18 +121,40 @@
     document.getElementById('item-price').textContent = `$${price}`;
 
     function changeQty(delta) {
-      const input = document.getElementById('quantity');
-      let value = parseInt(input.value) + delta;
-      if (value < 1) value = 1;
-      input.value = value;
-    }
+  const input = document.getElementById('quantity');
+  let value = parseInt(input.value) + delta;
+  if (value < 1) value = 1;
+  input.value = value;
+  updatePriceDisplay();
+}
 
     function submitItem() {
       const qty = parseInt(document.getElementById('quantity').value);
       const spicy = document.getElementById('spicy').checked;
+      let finalName = name;
+      if (spicy) finalName += '（加辣）';
+      const temp = document.querySelector('input[name="temperature"]:checked');
+      if (temp?.id === 'cold') finalName += '（冰的）';
+      if (temp?.id === 'hot') finalName += '（熱的）';
+
+      let totalPrice = parseInt(price);
+      const addons = {
+        egg: 15,
+        bacon: 20,
+        ham: 10,
+        cheese: 5
+      };
+      for (let key in addons) {
+        const qty = parseInt(document.getElementById(`addon-${key}`).value);
+        if (qty > 0) {
+          finalName += `（加${key === 'egg' ? '蛋' : key === 'bacon' ? '培根' : key === 'ham' ? '火腿' : '起司'}x${qty}）`;
+          totalPrice += qty * addons[key];
+        }
+      }
       const data = {
-        name: spicy ? name + '（加辣）' : name,
-        price: parseInt(price),
+        name: finalName,
+        price: totalPrice,
+        quantity: qty,
         quantity: qty
       };
 
@@ -114,6 +170,30 @@
 
       window.location.href = window.location.origin + window.location.pathname.replace(/item\.html.*/, 'index.html');
     }
-  </script>
+  function changeAddon(type, delta) {
+  const input = document.getElementById(`addon-${type}`);
+  let val = parseInt(input.value) + delta;
+  if (val < 0) val = 0;
+  input.value = val;
+  updatePriceDisplay();
+}
+
+function updatePriceDisplay() {
+  const base = parseInt(price);
+  const addons = {
+    egg: 15,
+    bacon: 20,
+    ham: 10,
+    cheese: 5
+  };
+  let addonTotal = 0;
+  for (let key in addons) {
+    const qty = parseInt(document.getElementById(`addon-${key}`).value);
+    addonTotal += qty * addons[key];
+  }
+  const finalPrice = base + addonTotal;
+  document.getElementById('item-price').textContent = `$${finalPrice * parseInt(document.getElementById('quantity').value)}`;
+}
+</script>
 </body>
 </html>
