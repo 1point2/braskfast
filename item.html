@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>商品詳情</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #fefefe;
+      font-size: 20px;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 30px;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      font-size: 32px;
+    }
+    .price {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .controls input {
+      width: 60px;
+      text-align: center;
+      font-size: 24px;
+    }
+    .spicy-option {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      font-size: 20px;
+      background-color: #e1c94f;
+      border: none;
+      cursor: pointer;
+    }
+    .back-button {
+      margin-top: 20px;
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="item-name">商品名稱</h1>
+    <div class="price" id="item-price">$0</div>
+
+    <div class="controls">
+      <button onclick="changeQty(-1)">-</button>
+      <input type="number" id="quantity" value="1" min="1">
+      <button onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="spicy-option">
+      <label><input type="checkbox" id="spicy"> 加辣</label>
+    </div>
+
+    <button onclick="submitItem()">加入訂單並返回</button>
+    <button class="back-button" onclick="history.back()">取消返回</button>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name');
+    const price = params.get('price');
+
+    document.getElementById('item-name').textContent = name;
+    document.getElementById('item-price').textContent = `$${price}`;
+
+    function changeQty(delta) {
+      const input = document.getElementById('quantity');
+      let value = parseInt(input.value) + delta;
+      if (value < 1) value = 1;
+      input.value = value;
+    }
+
+    function submitItem() {
+      const qty = parseInt(document.getElementById('quantity').value);
+      const spicy = document.getElementById('spicy').checked;
+      const data = {
+        name: spicy ? name + '（加辣）' : name,
+        price: parseInt(price),
+        quantity: qty
+      };
+
+      // 將現有訂單讀出來
+      const order = JSON.parse(localStorage.getItem('order') || '[]');
+      const existing = order.find(i => i.name === data.name);
+      if (existing) {
+        existing.quantity += data.quantity;
+      } else {
+        order.push(data);
+      }
+      localStorage.setItem('order', JSON.stringify(order));
+
+      window.location.href = window.location.origin + window.location.pathname.replace(/item\.html.*/, 'index.html');
+    }
+  </script>
+</body>
+</html>
