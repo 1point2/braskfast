@@ -382,7 +382,7 @@
                     const cartItemElement = document.createElement('div');
                     cartItemElement.classList.add('flex', 'justify-between', 'items-center', 'py-3', 'border-b', 'border-gray-200');
                     cartItemElement.innerHTML = `
-                        <div class="flex items-center min-w-0 mr-2"> {/* min-w-0 for truncation */}
+                        <div class="flex items-center min-w-0 mr-2"> 
                             <img src="${item.image}" alt="${item.name}" class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-md mr-2 sm:mr-3 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x64/CCCCCC/FFF?text=圖片';">
                             <div class="min-w-0">
                                 <h4 class="font-semibold text-gray-700 text-xs sm:text-sm truncate" title="${item.name}">${item.name}</h4>
